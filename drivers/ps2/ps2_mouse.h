@@ -175,3 +175,7 @@ void ps2_mouse_set_resolution(ps2_mouse_resolution_t resolution);
 void ps2_mouse_set_sample_rate(ps2_mouse_sample_rate_t sample_rate);
 
 void ps2_mouse_moved_user(report_mouse_t *mouse_report);
+
+#ifdef PS2_POINTING_DEVICE_MODE
+report_mouse_t ps2_mouse_get_report(report_mouse_t _mouse_report);
+#endif

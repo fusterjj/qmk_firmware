@@ -345,6 +345,41 @@ const pointing_device_driver_t pointing_device_driver = {
     .get_cpi    = pmw33xx_get_cpi_wrapper
 };
 // clang-format on
+//
+#elif defined(POINTING_DEVICE_DRIVER_ps2)
+static ps2_mouse_resolution_t ps2_resolution = 0;
+
+static void ps2_set_cpi_wrapper(uint16_t cpi) {
+    // There are only a few options for PS2
+    if (cpi >= 200) {
+        ps2_resolution = PS2_MOUSE_8_COUNT_MM;
+    } else if (cpi >= 100) {
+        ps2_resolution = PS2_MOUSE_4_COUNT_MM;
+    } else if (cpi >= 50) {
+        ps2_resolution = PS2_MOUSE_2_COUNT_MM;
+    } else {
+        ps2_resolution = PS2_MOUSE_1_COUNT_MM;
+    }
+
+    ps2_mouse_set_resolution(ps2_resolution);
+}
+
+static uint16_t ps2_get_cpi_wrapper(void) {
+    return (uint16_t)ps2_resolution * 25;
+}
+
+static void ps2_mouse_init_wrapper(void) {
+    ps2_mouse_init();
+
+    ps2_set_cpi_wrapper(PS2_POINTING_DEVICE_RESOLUTION);
+}
+
+const pointing_device_driver_t pointing_device_driver = {
+    .init       = ps2_mouse_init_wrapper,
+    .get_report = ps2_mouse_get_report,
+    .set_cpi    = ps2_set_cpi_wrapper,
+    .get_cpi    = ps2_get_cpi_wrapper,
+};
 
 #else
 __attribute__((weak)) void           pointing_device_driver_init(void) {}

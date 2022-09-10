@@ -167,6 +167,18 @@ bool oled_init(oled_rotation_t rotation) {
     }
 #endif
 
+#if defined(SPLIT_KEYBOARD) && defined(OLED_RIGHT_SPLIT_DISABLE)
+    if (!is_keyboard_left()) {
+        return true;
+    }
+#endif
+
+#if defined(SPLIT_KEYBOARD) && defined(OLED_LEFT_SPLIT_DISABLE)
+    if (is_keyboard_left()) {
+        return true;
+    }
+#endif
+
     oled_rotation = oled_init_user(oled_init_kb(rotation));
     if (!HAS_FLAGS(oled_rotation, OLED_ROTATION_90)) {
         oled_rotation_width = OLED_DISPLAY_WIDTH;

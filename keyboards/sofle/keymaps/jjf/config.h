@@ -38,6 +38,32 @@
     #define TAPPING_TERM 200
 #endif
 //#define ENCODER_DIRECTION_FLIP
+//
+
+
+// PS2 trackpoint on slave/right half
+#ifdef PS2_MOUSE_ENABLE
+#define PS2_POINTING_DEVICE_MODE
+// Can't do this and pointing device mode at the same time currently
+#define PS2_MOUSE_SCROLL_BTN_MASK 0
+#define PS2_CLOCK_PIN   D2
+#define PS2_DATA_PIN    D5
+// Not enough pins to do OLED and PS2 at the same time
+// ...so we do PS2 on the slave (right hand) and OLED on the master (left hand)
+#define OLED_RIGHT_SPLIT_DISABLE
+
+#define PS2_INT_INIT()  do {    \
+        EICRA |= ((1<<ISC21) |      \
+                              (0<<ISC20));      \
+} while (0)
+#define PS2_INT_ON()  do {      \
+        EIMSK |= (1<<INT2);         \
+} while (0)
+#define PS2_INT_OFF() do {      \
+        EIMSK &= ~(1<<INT2);        \
+} while (0)
+#define PS2_INT_VECT   INT2_vect
+#endif
 
 
 // Do these do anything without RGBLIGHT_ENABLE?
