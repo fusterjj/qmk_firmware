@@ -46,11 +46,13 @@
 #define PS2_POINTING_DEVICE_MODE
 // Can't do this and pointing device mode at the same time currently
 #define PS2_MOUSE_SCROLL_BTN_MASK 0
-#define PS2_CLOCK_PIN   D2
-#define PS2_DATA_PIN    D5
+#define PS2_CLOCK_PIN   D0
+#define PS2_DATA_PIN    D1
 // Not enough pins to do OLED and PS2 at the same time
 // ...so we do PS2 on the slave (right hand) and OLED on the master (left hand)
 #define OLED_RIGHT_SPLIT_DISABLE
+#define SPLIT_POINTING_ENABLE
+#define POINTING_DEVICE_RIGHT
 
 #define PS2_INT_INIT()  do {    \
         EICRA |= ((1<<ISC21) |      \
