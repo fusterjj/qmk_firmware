@@ -37,9 +37,10 @@
     #undef TAPPING_TERM
     #define TAPPING_TERM 200
 #endif
-#define ENCODER_DIRECTION_FLIP
+//#define ENCODER_DIRECTION_FLIP
 
 
+// Do these do anything without RGBLIGHT_ENABLE?
 #define RGBLIGHT_SLEEP
 //
 #define RGBLIGHT_LAYERS
