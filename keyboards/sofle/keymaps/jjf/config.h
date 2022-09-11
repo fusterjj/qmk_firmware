@@ -58,6 +58,7 @@
 #define OLED_RIGHT_SPLIT_DISABLE
 #define SPLIT_POINTING_ENABLE
 #define POINTING_DEVICE_RIGHT
+#define POINTING_DEVICE_ROTATION_90
 
 #define PS2_INT_INIT()  do {    \
         EICRA |= ((1<<ISC01) |  \
