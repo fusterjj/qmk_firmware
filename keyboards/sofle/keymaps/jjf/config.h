@@ -23,9 +23,12 @@
 ///https://thomasbaart.nl/2018/12/01/reducing-firmware-size-in-qmk/
 
 
+//#define MASTER_LEFT
 #define MASTER_RIGHT
-//#define MASTER_RIGHT
 // #define EE_HANDS
+#define SPLIT_TRANSPORT_MIRROR
+// Make sure slave knows the layer state for the OLED
+#define SPLIT_LAYER_STATE_ENABLE
 
 #define CUSTOM_FONT
 
@@ -37,9 +40,6 @@
     #undef TAPPING_TERM
     #define TAPPING_TERM 200
 #endif
-//#define ENCODER_DIRECTION_FLIP
-//
-
 
 // PS2 trackpoint on slave/right half
 #ifdef PS2_MOUSE_ENABLE
@@ -49,7 +49,7 @@
 #define PS2_MOUSE_SCROLL_BTN_MASK 0
 #define PS2_POINTING_DEVICE_RESOLUTION 50
 //#define PS2_MOUSE_DEBUG_RAW
-// This seems to go 1:1 with BUSYWAIT mode
+// Prevents weird jumps
 #define PS2_MOUSE_USE_REMOTE_MODE
 #define PS2_CLOCK_PIN   D0
 #define PS2_DATA_PIN    D1
@@ -113,7 +113,6 @@
 
 #define RGBLED_NUM 58
 #define DRIVER_LED_TOTAL RGBLED_NUM
-#define SPLIT_TRANSPORT_MIRROR
 #define RGB_MATRIX_SPLIT { 29, 29 }
 #   define RGB_MATRIX_KEYPRESSES // reacts to keypresses
 // #   define RGB_MATRIX_KEYRELEASES // reacts to keyreleases (instead of keypresses)
