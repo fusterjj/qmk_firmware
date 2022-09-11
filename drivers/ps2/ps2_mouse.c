@@ -75,7 +75,9 @@ __attribute__((weak)) void ps2_mouse_init_user(void) {}
 __attribute__((weak)) void ps2_mouse_moved_user(report_mouse_t *mouse_report) {}
 
 void ps2_mouse_task(void) {
+#ifndef PS2_POINTING_DEVICE_MODE
     static uint8_t buttons_prev = 0;
+#endif
     extern int     tp_buttons;
 
     if (!ps2_initialized) return;
@@ -111,31 +113,42 @@ void ps2_mouse_task(void) {
     }
 #endif
 
+/* Pointing device framework handles state changes for us */
+#ifdef PS2_POINTING_DEVICE_MODE
+#   ifdef PS2_MOUSE_DEBUG_RAW
+    // Used to debug raw ps2 bytes from mouse
+    ps2_mouse_print_report(&mouse_report);
+#   endif
+    ps2_mouse_convert_report_to_hid(&mouse_report);
+#   if PS2_MOUSE_SCROLL_BTN_MASK && defined(PS2_POINTING_DEVICE_MODE)
+#       error "PS2 Pointing Device mode does not currently support scroll buttons"
+#   endif
+    if (mouse_report.x || mouse_report.y || mouse_report.v) {
+        ps2_mouse_moved_user(&mouse_report);
+    }
+/* Legacy mode */
+#else
     /* if mouse moves or buttons state changes */
     if (mouse_report.x || mouse_report.y || mouse_report.v || ((mouse_report.buttons ^ buttons_prev) & PS2_MOUSE_BTN_MASK)) {
-#ifdef PS2_MOUSE_DEBUG_RAW
+#   ifdef PS2_MOUSE_DEBUG_RAW
         // Used to debug raw ps2 bytes from mouse
         ps2_mouse_print_report(&mouse_report);
-#endif
+#   endif
         buttons_prev = mouse_report.buttons;
         ps2_mouse_convert_report_to_hid(&mouse_report);
-#if PS2_MOUSE_SCROLL_BTN_MASK && defined(PS2_POINTING_DEVICE_MODE)
-#       error "PS2 Pointing Device mode does not currently support scroll buttons"
-#else
+#   if PS2_MOUSE_SCROLL_BTN_MASK
         ps2_mouse_scroll_button_task(&mouse_report);
-#endif
+#   endif
         if (mouse_report.x || mouse_report.y || mouse_report.v) {
             ps2_mouse_moved_user(&mouse_report);
         }
-#ifdef PS2_MOUSE_DEBUG_HID
+#   ifdef PS2_MOUSE_DEBUG_HID
         // Used to debug the bytes sent to the host
         ps2_mouse_print_report(&mouse_report);
-#endif
-
-#ifndef PS2_POINTING_DEVICE_MODE
+#   endif
         host_mouse_send(&mouse_report);
-#endif
     }
+#endif
 
 }
 

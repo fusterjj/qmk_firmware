@@ -156,7 +156,6 @@ void keyboard_post_init_user(void) {
     rgblight_layers = my_rgb_layers;
 
 	rgblight_mode(10);// haven't found a way to set this in a more useful way
-
 }
 #endif
 

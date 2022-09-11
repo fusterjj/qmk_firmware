@@ -23,8 +23,8 @@
 ///https://thomasbaart.nl/2018/12/01/reducing-firmware-size-in-qmk/
 
 
-#define MASTER_LEFT
-// #define MASTER_RIGHT
+#define MASTER_RIGHT
+//#define MASTER_RIGHT
 // #define EE_HANDS
 
 #define CUSTOM_FONT
@@ -43,9 +43,14 @@
 
 // PS2 trackpoint on slave/right half
 #ifdef PS2_MOUSE_ENABLE
+// This is so we can use the framework for split operation
 #define PS2_POINTING_DEVICE_MODE
 // Can't do this and pointing device mode at the same time currently
 #define PS2_MOUSE_SCROLL_BTN_MASK 0
+#define PS2_POINTING_DEVICE_RESOLUTION 50
+//#define PS2_MOUSE_DEBUG_RAW
+// This seems to go 1:1 with BUSYWAIT mode
+#define PS2_MOUSE_USE_REMOTE_MODE
 #define PS2_CLOCK_PIN   D0
 #define PS2_DATA_PIN    D1
 // Not enough pins to do OLED and PS2 at the same time
@@ -55,16 +60,16 @@
 #define POINTING_DEVICE_RIGHT
 
 #define PS2_INT_INIT()  do {    \
-        EICRA |= ((1<<ISC21) |      \
-                              (0<<ISC20));      \
+        EICRA |= ((1<<ISC01) |  \
+                  (0<<ISC00));  \
 } while (0)
 #define PS2_INT_ON()  do {      \
-        EIMSK |= (1<<INT2);         \
+        EIMSK |= (1<<INT0);     \
 } while (0)
 #define PS2_INT_OFF() do {      \
-        EIMSK &= ~(1<<INT2);        \
+        EIMSK &= ~(1<<INT0);    \
 } while (0)
-#define PS2_INT_VECT   INT2_vect
+#define PS2_INT_VECT   INT0_vect
 #endif
 
 
