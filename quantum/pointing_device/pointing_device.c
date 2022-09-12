@@ -166,6 +166,10 @@ __attribute__((weak)) void pointing_device_send(void) {
         host_mouse_send(&local_mouse_report);
     }
     // send it and 0 it out except for buttons, so those stay until they are explicity over-ridden using update_pointing_device
+#ifdef MOUSE_SHARED_EP
+    // This avoids continually sending the same report
+    local_mouse_report.report_id = 0;
+#endif
     local_mouse_report.x = 0;
     local_mouse_report.y = 0;
     local_mouse_report.v = 0;

@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* ============================= MACROS ============================ */
 
 static report_mouse_t mouse_report = {};
+static bool ps2_initialized = false;
 
 static inline void ps2_mouse_print_report(report_mouse_t *mouse_report);
 static inline void ps2_mouse_convert_report_to_hid(report_mouse_t *mouse_report);
@@ -65,6 +66,8 @@ void ps2_mouse_init(void) {
 #endif
 
     ps2_mouse_init_user();
+
+    ps2_initialized = true;
 }
 
 __attribute__((weak)) void ps2_mouse_init_user(void) {}
@@ -72,8 +75,14 @@ __attribute__((weak)) void ps2_mouse_init_user(void) {}
 __attribute__((weak)) void ps2_mouse_moved_user(report_mouse_t *mouse_report) {}
 
 void ps2_mouse_task(void) {
+#ifndef PS2_POINTING_DEVICE_MODE
     static uint8_t buttons_prev = 0;
+#endif
     extern int     tp_buttons;
+
+    if (!ps2_initialized) return;
+
+    ps2_mouse_clear_report(&mouse_report);
 
     /* receives packet from mouse */
 #ifdef PS2_MOUSE_USE_REMOTE_MODE
@@ -104,28 +113,43 @@ void ps2_mouse_task(void) {
     }
 #endif
 
+/* Pointing device framework handles state changes for us */
+#ifdef PS2_POINTING_DEVICE_MODE
+#   ifdef PS2_MOUSE_DEBUG_RAW
+    // Used to debug raw ps2 bytes from mouse
+    ps2_mouse_print_report(&mouse_report);
+#   endif
+    ps2_mouse_convert_report_to_hid(&mouse_report);
+#   if PS2_MOUSE_SCROLL_BTN_MASK && defined(PS2_POINTING_DEVICE_MODE)
+#       error "PS2 Pointing Device mode does not currently support scroll buttons"
+#   endif
+    if (mouse_report.x || mouse_report.y || mouse_report.v) {
+        ps2_mouse_moved_user(&mouse_report);
+    }
+/* Legacy mode */
+#else
     /* if mouse moves or buttons state changes */
     if (mouse_report.x || mouse_report.y || mouse_report.v || ((mouse_report.buttons ^ buttons_prev) & PS2_MOUSE_BTN_MASK)) {
-#ifdef PS2_MOUSE_DEBUG_RAW
+#   ifdef PS2_MOUSE_DEBUG_RAW
         // Used to debug raw ps2 bytes from mouse
         ps2_mouse_print_report(&mouse_report);
-#endif
+#   endif
         buttons_prev = mouse_report.buttons;
         ps2_mouse_convert_report_to_hid(&mouse_report);
-#if PS2_MOUSE_SCROLL_BTN_MASK
+#   if PS2_MOUSE_SCROLL_BTN_MASK
         ps2_mouse_scroll_button_task(&mouse_report);
-#endif
+#   endif
         if (mouse_report.x || mouse_report.y || mouse_report.v) {
             ps2_mouse_moved_user(&mouse_report);
         }
-#ifdef PS2_MOUSE_DEBUG_HID
+#   ifdef PS2_MOUSE_DEBUG_HID
         // Used to debug the bytes sent to the host
         ps2_mouse_print_report(&mouse_report);
-#endif
+#   endif
         host_mouse_send(&mouse_report);
     }
+#endif
 
-    ps2_mouse_clear_report(&mouse_report);
 }
 
 void ps2_mouse_disable_data_reporting(void) {
@@ -161,6 +185,13 @@ void ps2_mouse_set_resolution(ps2_mouse_resolution_t resolution) {
 void ps2_mouse_set_sample_rate(ps2_mouse_sample_rate_t sample_rate) {
     PS2_MOUSE_SET_SAFE(PS2_MOUSE_SET_SAMPLE_RATE, sample_rate, "ps2 mouse set sample rate");
 }
+
+#ifdef PS2_POINTING_DEVICE_MODE
+report_mouse_t ps2_mouse_get_report(report_mouse_t _mouse_report) {
+    // This works because ps2_mouse_task() always runs right before pointing_device_task()
+    return mouse_report;
+}
+#endif
 
 /* ============================= HELPERS ============================ */
 
@@ -282,7 +313,7 @@ static inline void ps2_mouse_scroll_button_task(report_mouse_t *mouse_report) {
     } else if (0 == (PS2_MOUSE_SCROLL_BTN_MASK & mouse_report->buttons)) {
         // None of the scroll buttons are pressed
 
-#if PS2_MOUSE_SCROLL_BTN_SEND
+#if PS2_MOUSE_SCROLL_BTN_SEND 
         if (scroll_state == SCROLL_BTN && timer_elapsed(scroll_button_time) < PS2_MOUSE_SCROLL_BTN_SEND) {
             PRESS_SCROLL_BUTTONS;
             host_mouse_send(mouse_report);
