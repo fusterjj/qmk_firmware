@@ -321,7 +321,7 @@ static inline void ps2_mouse_scroll_button_task(report_mouse_t *mouse_report) {
     } else if (0 == (PS2_MOUSE_SCROLL_BTN_MASK & mouse_report->buttons)) {
         // None of the scroll buttons are pressed
 
-#if PS2_MOUSE_SCROLL_BTN_SEND 
+#if PS2_MOUSE_SCROLL_BTN_SEND
         if (scroll_state == SCROLL_BTN && timer_elapsed(scroll_button_time) < PS2_MOUSE_SCROLL_BTN_SEND) {
             PRESS_SCROLL_BUTTONS;
             host_mouse_send(mouse_report);
