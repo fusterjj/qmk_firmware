@@ -189,7 +189,15 @@ void ps2_mouse_set_sample_rate(ps2_mouse_sample_rate_t sample_rate) {
 #ifdef PS2_POINTING_DEVICE_MODE
 report_mouse_t ps2_mouse_get_report(report_mouse_t _mouse_report) {
     // This works because ps2_mouse_task() always runs right before pointing_device_task()
-    return mouse_report;
+    _mouse_report.buttons   = mouse_report.butttons;
+    _mouse_report.x         = mouse_report.x;
+    _mouse_report.y         = mouse_report.y;
+    _mouse_report.h         = mouse_report.h;
+#   ifdef PS2_MOUSE_ENABLE_SCROLLING
+    _mouse_report.v         = mouse_report.v;
+#   endif
+
+    return _mouse_report;
 }
 #endif
 
