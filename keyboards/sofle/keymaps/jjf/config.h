@@ -47,7 +47,10 @@
 #define PS2_POINTING_DEVICE_MODE
 // Can't do this and pointing device mode at the same time currently
 #define PS2_MOUSE_SCROLL_BTN_MASK 0
-#define PS2_POINTING_DEVICE_RESOLUTION 50
+#define PS2_POINTING_DEVICE_RESOLUTION 200 
+#define PS2_MOUSE_USE_2_1_SCALING
+#define PS2_MOUSE_X_MULTIPLIER 2    
+#define PS2_MOUSE_Y_MULTIPLIER 2    
 //#define PS2_MOUSE_DEBUG_RAW
 // Prevents weird jumps
 #define PS2_MOUSE_USE_REMOTE_MODE
